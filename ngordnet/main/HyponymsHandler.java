@@ -10,8 +10,16 @@ public class HyponymsHandler extends NgordnetQueryHandler{
     Return a string representation of a list of the hyponyms of the single word, including the word itself.
     The list should be in alphabetical order, with no repeated words.
      */
+
+    private WordNet wnet;
+
+    public HyponymsHandler(WordNet wnet) {
+        this.wnet = wnet;
+    }
+
     @Override
     public String handle(NgordnetQuery q) {
+
         return "Hello!";
     }
 }
