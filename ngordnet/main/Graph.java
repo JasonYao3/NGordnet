@@ -1,34 +1,51 @@
 package ngordnet.main;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedList;
 
 public class Graph {
     //adjList, adjMatrix
     //adjList - hashmap
-    private Map<Vertex, List<Vertex>> adjList;
+    private int vertex;
+    private LinkedList<Integer> list[];
 
-    public Graph(Map<Vertex, List<Vertex>> adjList) {
-        this.adjList = adjList;
+    public Graph(int vertex) {
+        this.vertex = vertex;
+        list = new LinkedList[vertex];
+        for (int i = 0; i < vertex; i++) {
+            list[i] = new LinkedList<>();
+        }
     }
 
-    public void addVertex(String label) {
-        adjList.putIfAbsent(new Vertex(label), new ArrayList<>());
+    public void addEdge(int v, int w) {
+
+        //add edge
+        list[v].addFirst(w);
+
+        //add back edge ((for undirected)
+        //list[destination].addFirst(source);
     }
 
-    public void addEdge(String label1, String label2) {
-        Vertex v1 = new Vertex(label1);
-        Vertex v2 = new Vertex(label2);
-        adjList.get(v1).add(v2);
-        adjList.get(v2).add(v1);
+    public void printGraph(){
+        for (int i = 0; i <vertex ; i++) {
+            if(list[i].size()>0) {
+                System.out.print("Vertex " + i + " is connected to: ");
+                for (int j = 0; j < list[i].size(); j++) {
+                    System.out.print(list[i].get(j) + " ");
+                }
+                System.out.println();
+            }
+        }
     }
 
-    public Graph createGraph() {
-        Graph graph = new Graph();
-    }
-
-    public List<Vertex> getAdjList(String label) {
-        return adjList.get(new Vertex(label));
+    public static void main(String[] args) {
+        Graph graph = new Graph(5);
+        graph.addEdge(0,1);
+        graph.addEdge(0, 4);
+        graph.addEdge(1, 2);
+        graph.addEdge(1, 3);
+        graph.addEdge(1, 4);
+        graph.addEdge(2, 3);
+        graph.addEdge(3, 4);
+        graph.printGraph();
     }
 }
