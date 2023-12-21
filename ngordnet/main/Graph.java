@@ -64,6 +64,29 @@ public class Graph {
         return adjacencyList.getOrDefault(v, new LinkedList<>());
     }
 
+    //TODO Write code that takes a word, and uses a graph traversal to find all hyponyms of that word in the given graph.
+    // find reachable vertices
+    // dfs or bfs?
+    // pass in v = 0; return list = [1, 2]
+    public List<Integer> findReachableVertices(int v) {
+        Queue<Integer> queue = new LinkedList<>();
+        List<Integer> visited = new ArrayList<>();
+
+        queue.add(v);
+        visited.add(v);
+
+        while (!queue.isEmpty()) {
+            int front = queue.poll();
+            for (int n : getNeighbors(front)) {
+                if (!visited.contains(n)) {
+                    queue.add(n);
+                    visited.add(n);
+                }
+            }
+        }
+        return visited;
+    }
+
     public void printGraph() {
         for (Map.Entry<Integer, LinkedList<Integer>> entry : adjacencyList.entrySet()) {
             int vertex = entry.getKey();
@@ -76,24 +99,27 @@ public class Graph {
             System.out.println();
         }
     }
-//
-    //TODO Write code that takes a word, and uses a graph traversal to find all hyponyms of that word in the given graph.
+
+    public Map<Integer, LinkedList<Integer>> getAdjacencyList() {
+        return adjacencyList;
+    }
 
     public static void main(String[] args) {
         Graph graph = new Graph();
         graph.addEdge(0, 1);
-        graph.addEdge(0, 4);
         graph.addEdge(1, 2);
-        graph.addEdge(1, 3);
-        graph.addEdge(1, 4);
-        graph.addEdge(2, 3);
-        graph.addEdge(3, 4);
+        graph.addEdge(3,4);
+        graph.addEdge(5,6);
+        graph.addEdge(5,7);
+        graph.addEdge(8,10);
+        graph.addEdge(9,10);
+
         graph.printGraph();
-//        int vertexToGetNeighbors = 0;
-//        List<Integer> neighbors = graph.getNeighbors(vertexToGetNeighbors);
-//
-//        System.out.println("Neighbors of vertex " + vertexToGetNeighbors + ": " + neighbors);
+        int vertexToGetNeighbors = 0;
+        List<Integer> neighbors = graph.getNeighbors(vertexToGetNeighbors);
+
+        System.out.println("Neighbors of vertex " + vertexToGetNeighbors + ": " + neighbors);
+        System.out.println("find reachable vertices (bfs) " + graph.findReachableVertices(0));
+        graph.findReachableVertices(0);
     }
-
-
 }
