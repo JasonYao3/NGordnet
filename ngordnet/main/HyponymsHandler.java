@@ -3,6 +3,8 @@ package ngordnet.main;
 import ngordnet.hugbrowsermagic.NgordnetQuery;
 import ngordnet.hugbrowsermagic.NgordnetQueryHandler;
 
+import java.util.List;
+
 public class HyponymsHandler extends NgordnetQueryHandler{
     /*
     Assume that the “words” entered is only a single word.
@@ -19,7 +21,13 @@ public class HyponymsHandler extends NgordnetQueryHandler{
 
     @Override
     public String handle(NgordnetQuery q) {
+        List<String> words = q.words();
+        int startYear = q.startYear();
+        int endYear = q.endYear();
+        String response = "";
 
-        return "Hello!";
+        response += wnet.getReachableWords(words);
+
+        return response;
     }
 }

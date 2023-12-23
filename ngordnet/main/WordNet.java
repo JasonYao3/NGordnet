@@ -9,8 +9,6 @@ public class WordNet {
     private Graph graph = new Graph();
     private String hyponymsFileName;
     private String synsetsFileName;
-    //private Map<String, Integer> synsets = new HashMap<>();
-
     private Map<Integer, String> synsets = new HashMap<>();
 
 
@@ -67,80 +65,77 @@ public class WordNet {
         return graph;
     }
 
-    public String getWordById(int id) {
-        for (Map.Entry<Integer, String> entry : synsets.entrySet()) {
-            if (Objects.equals(id, entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
+    private List<Integer> findSynsetIdsByWord(String word) {
+        ArrayList<Integer> synsetIdsContainingWord = new ArrayList<>();
+        for (Map.Entry<Integer, String> synsetEntry : synsets.entrySet()) {
+            String synsetValue = synsetEntry.getValue();
+            String[] wordsInSynset = synsetValue.split(" ");
 
-    //Look up a word (e.g. “change”), what nodes contain that word?
-    //Example in synsets16.txt: change is in synsets 2 and 8
-    public List<Integer> lookupWord(String word) {
-        ArrayList<Integer> idContainsWord = new ArrayList<>();
-
-        for (Map.Entry<Integer, String> entry : synsets.entrySet()) {
-            if (entry.getValue().contains(word) || entry.getValue().equals(word)) {
-                idContainsWord.add(entry.getKey());
+            if (Arrays.asList(wordsInSynset).contains(word)) {
+                synsetIdsContainingWord.add(synsetEntry.getKey());
             }
+
+
         }
-        return idContainsWord;
+        return synsetIdsContainingWord;
     }
 
     public Map<Integer, String> getSynsets() {
         return synsets;
     }
 
-    public String returnWord(int id) {
-        return synsets.get(id);
+    private List<Integer> findHyponymsIds(String word) {
+        List<Integer> synsetIdsContainingWord  = findSynsetIdsByWord(word);
+        List<Integer> hyponymIds  = new ArrayList<>();
+        for (int i : synsetIdsContainingWord ) {
+            hyponymIds.addAll(getGraph().findReachableVertices(i));
+        }
+        return hyponymIds;
     }
 
-    // TODO clean up
-    private TreeSet extracted(String word) {
-        List<Integer> input = lookupWord(word);;
-        List<Integer> n = new ArrayList<>();
-        List<String> output = new ArrayList<>();
-        List<String> outputList = new ArrayList<>();
-        TreeSet hSet = new TreeSet();
-        Graph g = getGraph();
+    public TreeSet<String> getReachableWords(List<String> words) {
+        List<List<Integer>> hyponymsLists = new ArrayList<>();
+        TreeSet<String> reachableWordSet = new TreeSet<>();
+        for (String word : words) {
+            List<Integer> hyponymIds = findHyponymsIds(word);
+            hyponymsLists.add(hyponymIds);
+        }
 
-        for (int i : input) {
-            for (int j : g.findReachableVertices(i)) {
-                n.add(j);
-            }
+        List<Integer> commonHyponymIds = new ArrayList<>(hyponymsLists.get(0));
+        for (List<Integer> list : hyponymsLists) {
+            commonHyponymIds.retainAll(list);
         }
-        for (int m : n) {
-            output.add(returnWord(m));
+        for (int id : commonHyponymIds) {
+            reachableWordSet.addAll(List.of(synsets.get(id).split(" ")));
         }
-        for (String w : output) {
-            for (String v : w.split(" ")) {
-                // System.out.println(v);
-                outputList.add(v);
-                hSet.addAll(outputList);
-            }
-        }
-        return hSet;
+        return reachableWordSet;
     }
 
 
-    public static void main(String[] args) {
-        WordNet wn = new WordNet("./data/wordnet/hyponyms16.txt", "./data/wordnet/synsets16.txt");
-        Graph g = wn.getGraph();
-
-        Map<Integer, String> s = wn.getSynsets();
-        System.out.println("Synsets: \n" + s);
-        System.out.println("Graph: ");
-        g.printGraph();
-
-        System.out.println("---------------");
-//        System.out.println("get word by id: " + wn.getWordById(2));
-////        //System.out.println("get neighborsWord : " + wn.getNeighborsWord("change"));
-//        System.out.println(wn.lookupWord("change"));
-//        System.out.println("reachable vertices " + g.findReachableVertices(2));
-
-        System.out.println(wn.extracted("change"));
-
-    }
+//    public static void main(String[] args) {
+//        WordNet wn = new WordNet("./data/wordnet/hyponyms.txt",
+//                "./data/wordnet/synsets.txt");
+//        Graph g = wn.getGraph();
+//
+//        Map<Integer, String> s = wn.getSynsets();
+//        System.out.println("Synsets: \n" + s);
+//        System.out.println("Graph: ");
+//        g.printGraph();
+//
+//        System.out.println("---------------");
+//        //System.out.println(wn.findWordIds("action"));
+//
+//        List<String> stringList = new ArrayList<>();
+//        stringList.add("pastry");
+//        stringList.add("tart");
+//
+//        System.out.println("word is "  + wn.findSynsetIdsByWord("pastry"));
+//        System.out.println("word is "  + wn.findSynsetIdsByWord("tart"));
+//
+//        System.out.println(wn.findHyponymsIds("pastry"));
+//        System.out.println(wn.findHyponymsIds("tart"));
+//
+//        System.out.println(wn.getReachableWords(stringList));
+//
+//    }
 }
